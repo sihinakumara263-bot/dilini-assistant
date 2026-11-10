@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#09091c">
+<title>DILINI ASSISTANT</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at center, #19143c, #080817 75%);
+  color: white;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 500px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #c4a2ff;
+  font-size: 25px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+.status {
+  color: #65f5bc;
+  font-size: 12px;
+}
+
+.subtitle {
+  color: #aaa6ca;
+  margin-top: 8px;
+  letter-spacing: 2px;
+  font-size: 11px;
+}
+
+.orb-container {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%,
+    #ffffff 0%, #c6aaff 8%,
+    #8855ff 25%, #4224bd 55%,
+    #10102e 80%);
+  box-shadow:
+    0 0 25px #8955ff,
+    0 0 65px #6633ff,
+    inset -15px -20px 40px #080824;
+  animation: glow 3s infinite alternate;
+  position: relative;
+}
+
+.orb::after {
+  content: "";
+  position: absolute;
+  inset: -13px;
+  border-radius: 50%;
+  border: 2px solid #9874ff66;
+  animation: rotate 8s linear infinite;
+}
+
+@keyframes glow {
+  from {
+    transform: scale(.95);
+    box-shadow: 0 0 25px #8955ff;
+  }
+  to {
+    transform: scale(1.07);
+    box-shadow: 0 0 75px #8955ff;
+  }
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}
+
+.listening .orb {
+  animation: glow .7s infinite alternate;
+}
+
+h2 {
+  margin-top: 5px;
+  font-size: 23px;
+}
+
+.description {
+  color: #aaa6ca;
+  margin: 10px 0 20px;
+  font-size: 14px;
+}
+
+.chat {
+  width: 100%;
+  flex: 1;
+  min-height: 160px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 12px;
+  background: #ffffff0b;
+  border: 1px solid #ffffff16;
+  border-radius: 17px;
+}
+
+.message {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.user {
+  background: #6944bd55;
+  margin-left: 25px;
+}
+
+.bot {
+  background: #ffffff12;
+  margin-right: 25px;
+}
+
+.controls {
+  width: 100%;
+  display: flex;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+input {
+  min-width: 0;
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #6550a0;
+  border-radius: 25px;
+  background: #17142c;
+  color: white;
+  outline: none;
+  font-size: 14px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  border-radius: 25px;
+  padding: 13px 17px;
+  background: linear-gradient(135deg,#a16bff,#5933cf);
+  color: white;
+  font-size: 14px;
+}
+
+.mic {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  font-size: 25px;
+  margin-top: 18px;
+  box-shadow: 0 0 25px #8050ff88;
+}
+
+.footer {
+  color: #77718f;
+  font-size: 11px;
+  margin-top: 22px;
+}
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+
+  <div class="header">
+    <div class="logo">DILINI</div>
+    <div class="status">● READY</div>
+  </div>
+
+  <div class="subtitle">YOUR PERSONAL AI COMPANION</div>
+
+  <div class="orb-container">
+    <div class="orb"></div>
+  </div>
+
+  <h2>ආයුබෝවන් ❤️</h2>
+  <p class="description">
+    මම දිලිනි. අපි කතා කරමුද?
+  </p>
+
+  <div class="chat" id="chat">
+    <div class="message bot">
+      හායි! මම දිලිනි. ඔයාගේ පුද්ගලික සහකාරිය වෙන්න
+      මම සූදානම්. ❤️
+    </div>
+  </div>
+
+  <div class="controls">
+    <input id="userInput"
+      type="text"
+      placeholder="මට යමක් කියන්න..."
+      onkeydown="if(event.key==='Enter') sendMessage()">
+
+    <button onclick="sendMessage()">➤</button>
+  </div>
+
+  <button class="mic" onclick="startListening()" id="mic">
+    🎙️
+  </button>
+
+  <div class="footer">
+    DILINI ASSISTANT • VERSION 1.0
+  </div>
+
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const app = document.getElementById("app");
+
+function addMessage(message, type) {
+  const div = document.createElement("div");
+  div.className = "message " + type;
+  div.textContent = message;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "si-LK";
+  speech.rate = 0.95;
+  window.speechSynthesis.speak(speech);
+}
+
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  addMessage(message, "user");
+  input.value = "";
+
+  const reply =
+    "ඔයාගේ පණිවිඩය මට ලැබුණා. ❤️ " +
+    "මගේ AI මොළය තවම සම්බන්ධ කරලා නැහැ. " +
+    "ඒකත් අපි ඊළඟ පියවරේදී එකතු කරමු.";
+
+  setTimeout(() => {
+    addMessage(reply, "bot");
+    speak(reply);
+  }, 600);
+}
+
+function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    addMessage(
+      "මේ Browser එකේ Voice Recognition සහාය නැහැ. Chrome Browser එකෙන් උත්සාහ කරන්න.",
+      "bot"
+    );
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "si-LK";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  app.classList.add("listening");
+
+  recognition.onresult = function(event) {
+    const message = event.results[0][0].transcript;
+
+    document.getElementById("userInput").value = message;
+    sendMessage();
+  };
+
+  recognition.onerror = function() {
+    addMessage("හඬ හඳුනාගැනීමට නොහැකි වුණා. නැවත උත්සාහ කරමු.", "bot");
+  };
+
+  recognition.onend = function() {
+    app.classList.remove("listening");
+  };
+
+  try {
+    recognition.start();
+  } catch(error) {
+    app.classList.remove("listening");
+    addMessage("මයික්‍රෆෝනය ආරම්භ කිරීමට නොහැකි වුණා.", "bot");
+  }
+}
+</script>
+
+</body>
+</html>
